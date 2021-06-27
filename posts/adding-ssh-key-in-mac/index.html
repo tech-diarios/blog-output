@@ -1,0 +1,15 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="og:site_name" content="Tech Diarios"/><link rel="canonical" href="https://tech-diarios.io/posts/adding-ssh-key-in-mac"/><meta name="twitter:url" content="https://tech-diarios.io/posts/adding-ssh-key-in-mac"/><meta name="og:url" content="https://tech-diarios.io/posts/adding-ssh-key-in-mac"/><title>Adding your SSH key to the ssh-agent in macOS | Tech Diarios</title><meta name="twitter:title" content="Adding your SSH key to the ssh-agent in macOS | Tech Diarios"/><meta name="og:title" content="Adding your SSH key to the ssh-agent in macOS | Tech Diarios"/><meta name="description" content="Here I'll share my daily tech related works with you"/><meta name="twitter:description" content="Here I'll share my daily tech related works with you"/><meta name="og:description" content="Here I'll share my daily tech related works with you"/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="/styles.css" type="text/css"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Tech Diarios"/></head><body><header><div class="wrapper"><nav class="site-name"><a href="/">Tech Diarios</a></nav></div></header><div class="wrapper"><article><h1>Adding your SSH key to the ssh-agent in macOS</h1><h2>You have two options in order to use your IaaS which SSH keys are prefered, here we have a quick tutorial on adding them to ssh-agent in order to access server</h2><ol><li>open your terminal and start the ssh-agent in background.</li></ol><pre><code>
+ eval "$(ssh-agent -s)"
+ 
+</code></pre><ol start="2"><li>as I didn't have config in ~/.ssh I created the file.</li></ol><pre><code>
+touch ~/.ssh/config
+
+</code></pre><ol start="3"><li>now in config file add the following lines and the path of your private key.</li></ol><pre><code>
+Host *
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/privateKeyName.pem
+  
+</code></pre><ol start="4"><li>Add your SSH private key to the ssh-agent</li></ol><pre><code>
+ssh-add -K ~/.ssh/privateKeyName
+
+</code></pre></article></div></body></html>
