@@ -1,0 +1,68 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="og:site_name" content="Tech Diarios"/><link rel="canonical" href="https://tech-diarios.io/posts/SwiftUI/swiftUI-SeanAllen-course-notes"/><meta name="twitter:url" content="https://tech-diarios.io/posts/SwiftUI/swiftUI-SeanAllen-course-notes"/><meta name="og:url" content="https://tech-diarios.io/posts/SwiftUI/swiftUI-SeanAllen-course-notes"/><title>SwiftUI Sean Allen course notes | Tech Diarios</title><meta name="twitter:title" content="SwiftUI Sean Allen course notes | Tech Diarios"/><meta name="og:title" content="SwiftUI Sean Allen course notes | Tech Diarios"/><meta name="description" content="Here I'll share my daily tech related works with you"/><meta name="twitter:description" content="Here I'll share my daily tech related works with you"/><meta name="og:description" content="Here I'll share my daily tech related works with you"/><meta name="twitter:card" content="summary"/><link rel="stylesheet" href="/styles.css" type="text/css"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><link rel="shortcut icon" href="/images/favicon.png" type="image/png"/><link rel="alternate" href="/feed.rss" type="application/rss+xml" title="Subscribe to Tech Diarios"/></head><body><header><div class="wrapper"><nav class="site-name"><a href="/">Tech Diarios</a></nav></div></header><div class="wrapper"><article><div class="content"><h1>SwiftUI Sean Allen course notes</h1><h2>I finally finished the sean allen SwiftUI course and here’s what I’ve gotten through his awesome course</h2><ul><li>If you’re not going to get a subclass from your class, make it final.</li></ul><ul><li>Concepts of declarative(SwiftUI) and imperative(UIKit).</li></ul><ul><li>In integrating SwiftUI with UIKit, what is happening is that the body in SwiftUI is being replaced by a ViewController.</li></ul><ul><li>State variables (@State) are unique for each view and they are private.</li></ul><ul><li>We must be careful using bindings, because for example if you pass binding through 5 views they all would be tight together.</li></ul><ul><li>When we’re conforming to UIViewControllerRepresentable we must add protocol stubs which Xcode would yell at us about, but what the IDE suggests isn’t the exact type which we’d want to have. In order to fix this here’s the tricky line:</li></ul><pre><code>
+​  Typealias UIViewControllerType = YourClassViewController​  
+​  
+</code></pre><p>​And after Command + B we would get proper stubs; so you can remove tricky line.</p><ul><li>When we are going to pass a viewModel between views we use @ObservedObject instead of @StateObject</li></ul><ul><li>In code navigationTitle goes inside the NavigationView and outside the inside view :))</li></ul><pre><code>
+​  NavigationView {
+​    Text("Navigation List View").navigationTitle("🍟 Appetizers") 
+​  }​  
+​  
+</code></pre><ul><li>Instead of having a list with id, we can conform our model to Identifiable and remove the id</li></ul><pre><code>
+  struct Appetizer: Decodable 
+    List(MockData.appetizer, id: \.id) { appetizer in
+      Text(appetizer.name)
+  }​  
+​  
+</code></pre><pre><code>
+  struct Appetizer: Decodable, Identifiable
+    List(MockData.appetizer) {  appetizer in
+      Text(appetizer.name)
+  }​  
+  ​  
+</code></pre><ul><li>L means local variable here</li></ul><p align="center">
+<img src="/SwiftUI/local-variable.png" style="border-radius:3%">
+</p><ul><li>Setting data in SwiftUI must be in main queue</li></ul><pre><code>
+  NetworkManager.shared.getAppetizers { (result) in
+    DispatchQueue.main.async {
+      switch result {
+        case .success(let appetizers):
+          self.appetizers = appetizers  
+        case .failure(let error):
+          print(error.localizedDescription)
+        } 
+      }        
+    }
+    
+</code></pre><ul><li>We use main queues for changes in UI that's why when Sean had a class with a published property that changes the UI, he set edits on the variable to be in a main queue</li></ul><pre><code>
+    final class ImageLoader: ObservableObject {
+      @Published var image: Image? = nil 
+      
+      func load(fromURLString urlString: String) {
+        NetworkManager.shared.downloadImage(fromURLString: urlString) { (uiImage) in
+          guard let uiImage = uiImage else { return }
+          DispatchQueue.main.async {
+            self.image = Image(uiImage: uiImage)
+          }
+        }
+      }
+    }
+
+</code></pre><ul><li>There was a way that people usually create lists as we had at the first of the course<ul></ul></li></ul><pre><code>
+      List(viewModel.appetizers) { appetizer in
+        AppetizerListCell(appetizer: appetizer)
+        .onTapGesture {
+          viewModel.selectedAppetizer = appetizer
+          viewModel.isShowingDetail = true
+        }
+      }
+
+</code></pre><p>but if you want to provide swipe to delete action you must create your list in a different way</p><pre><code>
+      List {
+        ForEach(orderItems) { appetizer in
+          AppetizerListCell(appetizer: appetizer)
+        }
+        .onDelete(perform: { indexSet in
+          orderItems.remove(atOffsets: indexSet)
+        })
+      }
+
+</code></pre><ul><li>Command + Shift + A = switch dark mode and light mode in simulator.</li><li>If you've come from UIKit like me, we always tend to know what's really going on behind the code, and same here in SwiftUI I couldn't understand well enough how @State works, because structs are value types and each time they change we would have a new one in storage.</li><li>So I figure it out:when a state variable changes, what SwiftUI would understand is that the view is invalid and so recomputed the whole body again.</li><li>What I thought before on @Binding was like the "inout" keyword, but I was wrong. The two variables aren't the same in storage, with binding we bind the second variable into the source of truth.</li><li>Another way to use an environment object is when you want to pass a binding object down more than three views, you can use environment object instead.</li></ul><h3>And for last here's the github repos:</h3><ul><li><a href="https://github.com/masein/weather-swift-ui">Weather</a></li><li><a href="https://github.com/masein/appetizer-swift-ui">Appetizer</a></li><li><a href="https://github.com/masein/apple-frameworks-swift-ui">Apple Frameworks</a></li></ul></div><span>Tagged with: </span><ul class="tag-list"><li><a href="/tags/tech-diarios">tech diarios</a></li><li><a href="/tags/swiftui">SwiftUI</a></li><li><a href="/tags/swift">swift</a></li><li><a href="/tags/sean-allen">Sean Allen</a></li><li><a href="/tags/environment-variable">environment variable</a></li></ul></article></div></body></html>
